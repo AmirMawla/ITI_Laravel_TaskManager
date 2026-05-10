@@ -1,13 +1,28 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TasksController;
+use App\Http\Controllers\CommentController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
-    // return redirect()->route('tasks.index');
 });
 
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+require __DIR__.'/auth.php';
+
+
+Route::middleware('auth')->group(function () {
 // Tasks routes
 Route::get('/tasks', [TasksController::class, 'index'])->name('tasks.index');
 Route::get('/tasks/create', [TasksController::class, 'create'])->name('tasks.create');
@@ -18,3 +33,8 @@ Route::put('/tasks/{id}', [TasksController::class, 'update'])->name('tasks.updat
 Route::delete('/tasks/{id}', [TasksController::class, 'destroy'])->name('tasks.destroy');
 Route::post('/tasks/{id}/restore', [TasksController::class, 'restore'])->name('tasks.restore');
 Route::delete('/tasks/{id}/force-delete', [TasksController::class, 'forceDelete'])->name('tasks.forceDelete');
+
+// Comments routes
+Route::put('/comments/{id}', [CommentController::class, 'update'])->name('comments.update');
+Route::delete('/comments/{id}', [CommentController::class, 'destroy'])->name('comments.destroy');
+});

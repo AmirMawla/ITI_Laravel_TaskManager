@@ -1,4 +1,4 @@
-@extends('layouts.user_layout')
+@extends('layouts.app')
 
 @section('content')
 @php
@@ -52,6 +52,7 @@
                     <tr>
                         <th>#</th>
                         <th>Title</th>
+                        <th>Slug</th>
                         <th>Priority</th>
                         <th>Status</th>
                         <th>Due Date</th>
@@ -70,6 +71,9 @@
                                 @if($task->trashed())
                                     <span class="badge text-bg-danger mt-1">Deleted</span>
                                 @endif
+                            </td>
+                            <td>
+                                <span class="small text-muted">{{ $task->slug }}</span>
                             </td>
                             <td>
                                 @php

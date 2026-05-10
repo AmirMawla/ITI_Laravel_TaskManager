@@ -1,4 +1,4 @@
-@extends('layouts.user_layout')
+@extends('layouts.app')
 
 @section('content')
 
@@ -18,10 +18,20 @@
                         <label for="title" class="form-label">Title</label>
                         <input type="text" class="form-control" id="title" name="title" value="{{ old('title') }}" required>
                     </div>
+                    @error('title')
+                        <div class="col-12">
+                            <div class="alert alert-danger">{{ $message }}</div>
+                        </div>
+                    @enderror
                     <div class="col-12">
                         <label for="description" class="form-label">Description</label>
                         <textarea class="form-control" id="description" name="description" rows="4" required>{{ old('description') }}</textarea>
                     </div>
+                    @error('description')
+                        <div class="col-12">
+                            <div class="alert alert-danger">{{ $message }}</div>
+                        </div>
+                    @enderror
 
                     <div class="col-md-3">
                         <label for="priority" class="form-label">Priority</label>
@@ -31,6 +41,11 @@
                             @endforeach
                         </select>
                     </div>
+                    @error('priority')
+                        <div class="col-12">
+                            <div class="alert alert-danger">{{ $message }}</div>
+                        </div>
+                    @enderror
                     <div class="col-md-3">
                         <label for="status" class="form-label">Status</label>
                         <select class="form-select" id="status" name="status" required>
@@ -39,19 +54,34 @@
                             @endforeach
                         </select>
                     </div>
+                    @error('status')
+                        <div class="col-12">
+                            <div class="alert alert-danger">{{ $message }}</div>
+                        </div>
+                    @enderror
                     <div class="col-md-3">
                         <label for="due_date" class="form-label">Due Date</label>
                         <input type="date" class="form-control" id="due_date" name="due_date" value="{{ old('due_date') }}" required>
                     </div>
+                    @error('due_date')
+                        <div class="col-12">
+                            <div class="alert alert-danger">{{ $message }}</div>
+                        </div>
+                    @enderror
                     <div class="col-md-3">
                         <label for="creator_id" class="form-label">Creator</label>
-                        <select class="form-select" id="creator_id" name="creator_id" required>
+                        <select class="form-select" id="creator_id" name="creator_id" required disabled>
                             <option value="">Select user</option>
                             @foreach($users as $user)
-                                <option value="{{ $user->id }}" {{ old('creator_id') == $user->id ? 'selected' : '' }}>{{ $user->name }}</option>
+                                <option value="{{ $user->id }}" {{ auth()->id() == $user->id ? 'selected' : '' }}>{{ $user->name }}</option>
                             @endforeach
                         </select>
                     </div>
+                    @error('creator_id')
+                        <div class="col-12">
+                            <div class="alert alert-danger">{{ $message }}</div>
+                        </div>
+                    @enderror
 
                     <div class="col-md-3">
                         <label for="assigned_id" class="form-label">Assigned To</label>
@@ -62,7 +92,11 @@
                             @endforeach
                         </select>
                     </div>
-
+                    @error('assigned_id')
+                        <div class="col-12">
+                            <div class="alert alert-danger">{{ $message }}</div>
+                        </div>
+                    @enderror
                     <div class="col-md-6">
                         <label class="form-label">Color</label>
                         @php $colors = ['#1F3B67', '#2E5B9A', '#22C55E', '#F59E0B', '#EF4444', '#0EA5E9']; @endphp
@@ -74,6 +108,22 @@
                                 </label>
                             @endforeach
                         </div>
+                    </div>
+                    @error('color')
+                        <div class="col-12">
+                            <div class="alert alert-danger">{{ $message }}</div>
+                        </div>
+                    @enderror
+
+                    <div class="col-md-6">
+                        <label for="image" class="form-label">Images (jpg, png) — you can select multiple</label>
+                        <input type="file" class="form-control" id="image" name="image[]" accept="image/png, image/jpeg" multiple>
+                        @error('image')
+                            <div class="alert alert-danger mt-2">{{ $message }}</div>
+                        @enderror
+                        @error('image.*')
+                            <div class="alert alert-danger mt-2">{{ $message }}</div>
+                        @enderror
                     </div>
 
                 </div>

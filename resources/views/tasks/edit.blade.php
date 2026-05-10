@@ -1,4 +1,4 @@
-@extends('layouts.user_layout')
+@extends('layouts.app')
 
 @section('content')
 
@@ -13,7 +13,7 @@
         </div>
 
         <div class="app-surface p-4 p-lg-5">
-            <form action="{{ route('tasks.update', $task->id) }}" method="POST">
+            <form action="{{ route('tasks.update', $task->id) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
 
@@ -22,11 +22,21 @@
                         <label for="title" class="form-label">Title</label>
                         <input type="text" id="title" name="title" class="form-control" value="{{ old('title', $task->title) }}" required>
                     </div>
+                    @error('title')
+                        <div class="col-12">
+                            <div class="alert alert-danger">{{ $message }}</div>
+                        </div>
+                    @enderror
 
                     <div class="col-12">
                         <label for="description" class="form-label">Description</label>
                         <textarea id="description" name="description" class="form-control" rows="4" required>{{ old('description', $task->description) }}</textarea>
                     </div>
+                    @error('description')
+                        <div class="col-12">
+                            <div class="alert alert-danger">{{ $message }}</div>
+                        </div>
+                    @enderror
 
                     <div class="col-md-3">
                         <label for="priority" class="form-label">Priority</label>
@@ -36,6 +46,11 @@
                             @endforeach
                         </select>
                     </div>
+                    @error('priority')
+                        <div class="col-12">
+                            <div class="alert alert-danger">{{ $message }}</div>
+                        </div>
+                    @enderror
 
                     <div class="col-md-3">
                         <label for="status" class="form-label">Status</label>
@@ -45,11 +60,21 @@
                             @endforeach
                         </select>
                     </div>
+                    @error('status')
+                        <div class="col-12">
+                            <div class="alert alert-danger">{{ $message }}</div>
+                        </div>
+                    @enderror
 
                     <div class="col-md-3">
                         <label for="due_date" class="form-label">Due Date</label>
                         <input type="date" id="due_date" name="due_date" class="form-control" value="{{ old('due_date', $task->due_date) }}" required>
                     </div>
+                    @error('due_date')
+                        <div class="col-12">
+                            <div class="alert alert-danger">{{ $message }}</div>
+                        </div>
+                    @enderror
 
                     <div class="col-md-3">
                         <label for="completed" class="form-label d-block">Completed</label>
@@ -58,16 +83,26 @@
                             <label class="form-check-label" for="completed">Mark as done</label>
                         </div>
                     </div>
+                    @error('completed')
+                        <div class="col-12">
+                            <div class="alert alert-danger">{{ $message }}</div>
+                        </div>
+                    @enderror
 
                     <div class="col-md-6">
                         <label for="creator_id" class="form-label">Creator</label>
-                        <select id="creator_id" name="creator_id" class="form-select" required>
+                        <select id="creator_id" name="creator_id" class="form-select" required disabled>
                             <option value="">Select creator</option>
                             @foreach($users as $user)
-                                <option value="{{ $user->id }}" {{ old('creator_id', $task->creator_id) == $user->id ? 'selected' : '' }}>{{ $user->name }}</option>
+                                <option value="{{ $user->id }}" {{ auth()->id() == $user->id ? 'selected' : '' }}>{{ $user->name }}</option>
                             @endforeach
                         </select>
                     </div>
+                    @error('creator_id')
+                        <div class="col-12">
+                            <div class="alert alert-danger">{{ $message }}</div>
+                        </div>
+                    @enderror
 
                     <div class="col-md-6">
                         <label for="assigned_id" class="form-label">Assigned To</label>
@@ -78,6 +113,11 @@
                             @endforeach
                         </select>
                     </div>
+                    @error('assigned_id')
+                        <div class="col-12">
+                            <div class="alert alert-danger">{{ $message }}</div>
+                        </div>
+                    @enderror
 
                     <div class="col-12">
                         <label class="form-label d-block">Color</label>
@@ -91,7 +131,31 @@
                             @endforeach
                         </div>
                     </div>
+                    @error('color')
+                        <div class="col-12">
+                            <div class="alert alert-danger">{{ $message }}</div>
+                        </div>
+                    @enderror
+
+                    <div class="col-12">
+                        <label for="image" class="form-label">Upload Images (jpg, png) — you can select multiple</label>
+                        <input type="file" class="form-control" id="image" name="image[]" accept="image/png, image/jpeg" multiple>
+                        @error('image')
+                            <div class="mt-2 alert alert-danger">{{ $message }}</div>
+                        @enderror
+                        @error('image.*')
+                            <div class="alert alert-danger mt-2">{{ $message }}</div>
+                        @enderror
+                        @if($task->images->count() > 0)
+                            <div class="mt-3 d-flex gap-2 flex-wrap">
+                                @foreach($task->images as $img)
+                                    <img src="{{ asset('storage/' . $img->path) }}" alt="task image" style="height:60px;border-radius:6px;">
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
                 </div>
+
 
                 <div class="d-flex gap-2 mt-4">
                     <x-button variant="primary" type="submit">Update Task</x-button>
@@ -100,6 +164,35 @@
                 </div>
             </form>
         </div>
+
+        @if($task->comments->count() > 0)
+        <div class="app-surface p-4 p-lg-5 mt-4">
+            <h2 class="h4 mb-4">Task Comments ({{ $task->comments->count() }})</h2>
+            <div class="d-grid gap-3">
+                @foreach($task->comments as $comment)
+                <div class="border rounded p-3">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <div class="fw-semibold text-dark">{{ $comment->user->name }}</div>
+                            <div class="small text-muted">{{ $comment->created_at->format('M d, Y H:i') }}</div>
+                        </div>
+                    </div>
+                    <form action="{{ route('comments.update', $comment->id) }}" method="POST" class="comment-form-{{ $comment->id }}">
+                        @csrf
+                        @method('PUT')
+                        <div class="form-group mb-2">
+                            <textarea name="content" class="form-control" rows="3" required>{{ $comment->content }}</textarea>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-sm btn-primary">Save</button>
+                            <button type="button" class="btn btn-sm btn-secondary" onclick="location.href='{{ route('comments.destroy', $comment->id) }}'">Delete</button>
+                        </div>
+                    </form>
+                </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
     </div>
 </div>
 

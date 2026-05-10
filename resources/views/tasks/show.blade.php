@@ -1,4 +1,4 @@
-@extends('layouts.user_layout')
+@extends('layouts.app')
 
 @section('content')
 
@@ -74,6 +74,27 @@
                 </div>
             </div>
         </div>
+
+        <div class="app-surface p-4 mb-4">
+            <h2 class="h5 mb-3">Comments ({{ $task->comments->count() }})</h2>
+            @if($task->comments->count() > 0)
+                <div class="d-grid gap-3">
+                    @foreach($task->comments as $comment)
+                        <div class="border rounded p-3">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <div class="fw-semibold text-dark">{{ $comment->user->name }}</div>
+                                    <div class="small text-muted">{{ $comment->created_at->format('M d, Y H:i') }}</div>
+                                </div>
+                            </div>
+                            <p class="mb-0 text-dark">{{ $comment->content }}</p>
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <div class="alert alert-info mb-0">No comments yet.</div>
+            @endif
+        </div>
     </div>
 
     <div class="col-lg-4">
@@ -88,6 +109,13 @@
                     <div class="small text-muted mb-1">Priority</div>
                     <span class="badge text-bg-secondary px-3 py-2">{{ $task->priority }}</span>
                 </div>
+                    @if($task->images->count() > 0)
+                        <div class="mb-4">
+                            @foreach($task->images as $img)
+                                <img src="{{ asset('storage/' . $img->path) }}" alt="task image" class="mb-2 rounded w-full" />
+                            @endforeach
+                        </div>
+                    @endif
                 <div>
                     <div class="small text-muted mb-1">Completion</div>
                     <div class="fw-semibold">{{ $task->completed ? 'Completed' : 'Not completed' }}</div>
