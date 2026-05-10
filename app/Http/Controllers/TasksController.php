@@ -33,6 +33,7 @@ class TasksController extends Controller
 
         $data = $request->validated();
         $data['creator_id'] = auth()->id();
+        $data['completed'] = $data['completed'] ?? false;
         $task = Task::create(Arr::except($data, ['image']));
 
         foreach ($this->uploadImages($request, 'tasks') as $path) {
