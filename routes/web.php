@@ -4,6 +4,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TasksController;
 use App\Http\Controllers\CommentController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
+use Laravel\Socialite\Facades\Socialite;
 
 Route::get('/', function () {
     return view('welcome');
@@ -38,3 +40,29 @@ Route::delete('/tasks/{id}/force-delete', [TasksController::class, 'forceDelete'
 Route::put('/comments/{id}', [CommentController::class, 'update'])->name('comments.update');
 Route::delete('/comments/{id}', [CommentController::class, 'destroy'])->name('comments.destroy');
 });
+
+
+
+// integrations
+Route::get('/auth/redirect/{provider}', function ($provider) {
+    return Socialite::driver($provider)->redirect();
+})->name('oauth.redirect');
+
+Route::get('/auth/callback/{provider}', function ($provider) {
+    $socialUser = Socialite::driver($provider)->user();
+    
+    
+    $user = \App\Models\User::firstOrCreate(
+        ['email' => $socialUser->getEmail()],
+        [
+            'name' => $socialUser->getName(),
+            'password' => bcrypt('oauth-' . $provider . '-' . $socialUser->getId()),
+        ]
+    );
+    
+    
+    Auth::login($user, remember: true);
+    
+    return redirect(route('tasks.index'));
+})->name('oauth.callback');
+
